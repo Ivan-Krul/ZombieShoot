@@ -66,6 +66,7 @@ void zombie_delete(Zombie* zombie)
 
     if (zombie->is_on_the_heap)
     {
+        // we got a problem, and a question "Is it really heap?"
         free(zombie);
     }
 }

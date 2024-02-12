@@ -18,6 +18,8 @@
 #define STB_DS_IMPLEMENTATION
 #include "externals/stb_ds.h"
 
+#include "utils/ErrorMessager.h"
+
 static Player* player;
 
 static Bullet* bullets = NULL;
@@ -41,12 +43,7 @@ static void spawn_bullet(void* sender)
 
         Bullet* bullet = malloc(sizeof(Bullet));
 
-        if (bullet == NULL)
-        {
-            printf("cannot allocate bullet");
-            getchar();
-            exit(1);
-        }
+        check_null_alloc(bullet, "cannot allocate bullet");
 
         bullet_init(bullet, player->entity->position, bullet_dir, false);
 
@@ -59,12 +56,7 @@ static void spawn_zombie(void* sender)
 {
     Zombie* zombie = malloc(sizeof(Zombie));
 
-    if (zombie == NULL)
-    {
-        printf("cannot allocate zombie");
-        getchar();
-        exit(1);
-    }
+    check_null_alloc(zombie, "cannot allocate zombie");
 
     zombie_init(zombie, ((Player*)sender)->entity, (Vector2){ 100, 100 }, true);
 
@@ -92,11 +84,10 @@ static void init_game()
     // repopulate zombies if it exist
     if (zombies != NULL)
     {
-        for (size_t i = 0; i < arrlen(zombies); i++)
+        const auto len = arrlen(zombies); // it's changing every time, and it looks pretty sus
+        for (size_t i = 0; i < len; i++)
         {
-            Zombie zombie = zombies[i];
-
-            zombie_delete(&zombie);
+            zombie_delete(&(zombies[i]));
         }
         
         arrfree(zombies);
@@ -108,12 +99,7 @@ static void init_game()
     // player
     player = alloca(sizeof(Player));
 
-    if (player == NULL)
-    {
-        printf("cannot allocate player");
-        getchar();
-        exit(1);
-    }
+    check_null_alloc(player, "cannot allocate player");
 
     player_init(player, (Vector2) { 960 / 2, 540 / 2 }, false);
 
@@ -121,12 +107,7 @@ static void init_game()
     // bullet_spawn_timer
     bullet_spawn_timer = alloca(sizeof(Timer));
 
-    if (bullet_spawn_timer == NULL)
-    {
-        printf("cannot allocate bullet_spawn_timer");
-        getchar();
-        exit(1);
-    }
+    check_null_alloc(bullet_spawn_timer, "cannot allocate bullet_spawn_timer");
 
     timer_init(bullet_spawn_timer, 0.1f, false, false, spawn_bullet);
 
@@ -134,12 +115,7 @@ static void init_game()
     // zombie_spawn_timer
     zombie_spawn_timer = alloca(sizeof(Timer));
 
-    if (zombie_spawn_timer == NULL)
-    {
-        printf("cannot allocate zombie_spawn_timer");
-        getchar();
-        exit(1);
-    }
+    check_null_alloc(zombie_spawn_timer, "cannot allocate zombie_spawn_timer");
 
     timer_init(zombie_spawn_timer, 1.0f, false, false, spawn_zombie);
 }
